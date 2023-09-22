@@ -3,7 +3,7 @@
 #include <string.h>
 
 int main(int argc, char** argv) {
-  std::string fichero_grafo = "grafo.txt";
+  std::string fichero_grafo = "Grafo1.txt";
   std::ifstream grafo_texto(fichero_grafo, std::ios_base::in);
   if(!grafo_texto.is_open()) {
     std::cerr << "El fichero no se encuentra disponible para su lectura." << std::endl;

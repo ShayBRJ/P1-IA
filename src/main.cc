@@ -3,7 +3,7 @@
 #include <string.h>
 
 int main(int argc, char** argv) {
-  std::string fichero_grafo = "Grafo1.txt";
+  std::string fichero_grafo = "Grafo2.txt";
   std::ifstream grafo_texto(fichero_grafo, std::ios_base::in);
   if(!grafo_texto.is_open()) {
     std::cerr << "El fichero no se encuentra disponible para su lectura." << std::endl;
@@ -20,6 +20,6 @@ int main(int argc, char** argv) {
       grafo.InsertCost(j, i, atof(linea_leida.c_str()));
     }
   }
-
+  grafo.BusquedaProfundidad(1,5);
   return 0;
 }

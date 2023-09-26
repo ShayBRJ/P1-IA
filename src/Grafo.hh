@@ -2,7 +2,17 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include <queue>
 #include <stack>
+
+#include "Utils.hh"
+
+struct SIB //Search Information block
+{
+  std::vector<int> recorrido;
+  std::vector<int> camino;
+  std::vector<int> Stack2Vector(std::stack<int>);
+};
 
 class Grafo {
 
@@ -10,12 +20,14 @@ public:
   Grafo(int numero_vertices);
   bool InsertCost(int vertice_i, int vertice_j, double coste);
   double Mostrar_Coste_Arista(int, int);
-  void BusquedaProfundidad(int, int);
+  SIB BusquedaProfundidad(int, int);
 
 private:
   int num_vertices;
   std::vector<std::vector<double>> Vertices;
+  bool all_visited(std::vector<double> adyacentes, std::vector<bool> nodos_visitados);
 };
+
 
 Grafo::Grafo(int numero_vertices) {
   this->Vertices.resize(numero_vertices);
@@ -38,36 +50,49 @@ double Grafo::Mostrar_Coste_Arista(int i , int j) {
   return this->Vertices[i][j];
 }
 
-void Grafo::BusquedaProfundidad(int origen, int destino) {
+SIB Grafo::BusquedaProfundidad(int origen, int destino) {
   int iterador = 0;
+  if(origen > this->num_vertices || origen < 1) return SIB();
   origen--, destino--;
   std::vector<bool> visitados;
   visitados.resize(this->num_vertices, false);
   std::stack<int> pila;
-  std::vector<int> recorrido;
-  recorrido.resize(this->num_vertices, -1);
-  visitados.at(origen) = true;
+  std::stack<int> camino_pila;
+  SIB bloque_info;
+  bloque_info.recorrido.resize(this->num_vertices, -1);
   pila.push(origen);
   while(!pila.empty()) {
     auto const& nodo_visitado = pila.top();
-    recorrido[iterador] = nodo_visitado;
-    iterador++;
     pila.pop();
+    camino_pila.push(nodo_visitado);
+    visitados.at(nodo_visitado) = true;
+    bloque_info.recorrido[iterador] = nodo_visitado;
+    iterador++;
     auto const& adyacentes = this->Vertices.at(nodo_visitado);
+    if(nodo_visitado == destino) {
+      bloque_info.camino = utils::Stack2Vector(camino_pila);
+      return bloque_info;
+    }
+    while(!camino_pila.empty()){
+      if(all_visited(this->Vertices.at(camino_pila.top()), visitados)) camino_pila.pop();
+      else break;
+    }
     for(int i = 0; i < adyacentes.size(); i++) {
       if(adyacentes[i] != -1) {
-        if(i == destino) {
-          recorrido[iterador] = i;
-          iterador++;
-          visitados.at(i) = true;
-          return;
-        }
         if(visitados[i] == false) {
-          visitados[i] = true;
           pila.push(i);
         }
       }
-      
     }
   }
+  return bloque_info;
 }
+
+  bool Grafo::all_visited(std::vector<double> adyacentes, std::vector<bool> nodos_visitados) {
+    for(int i = 0; i < adyacentes.size(); i++) {
+      if(adyacentes[i] >= 0 && nodos_visitados[i] == false) {
+        return false;
+      }
+    }
+    return true;
+  }

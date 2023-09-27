@@ -11,15 +11,16 @@ struct SIB //Search Information block
 {
   std::vector<int> recorrido;
   std::vector<int> camino;
-  std::vector<int> Stack2Vector(std::stack<int>);
 };
 
 class Grafo {
 
 public:
-  Grafo(int numero_vertices);
+  Grafo(int numero_vertices = 0);
   bool InsertCost(int vertice_i, int vertice_j, double coste);
   double Mostrar_Coste_Arista(int, int);
+  int GetNumVertices();
+  
   SIB BusquedaProfundidad(int, int);
 
 private:
@@ -96,3 +97,6 @@ SIB Grafo::BusquedaProfundidad(int origen, int destino) {
     }
     return true;
   }
+int Grafo::GetNumVertices() {
+  return this->num_vertices;
+}

@@ -67,12 +67,12 @@ SIB Grafo::BusquedaProfundidad(int origen, int destino) {
 }
 
 SIB Grafo::BusquedaAmplitud(int origen, int destino) {
-  int iterador = 0;
+  int iter_inspec = 0;
   if(origen > this->num_vertices || origen < 1) return SIB();
   origen--, destino--;
   std::vector<bool> visitados;
   std::queue<int> cola;
-  std::stack<int> camino_pila;
+  std::stack<std::pair<int, int>> camino_pila;
   SIB bloque_info;
   bloque_info.tipo_busqueda = "Búsqueda Amplitud";
   bloque_info.nodo_origen = origen + 1;
@@ -82,40 +82,42 @@ SIB Grafo::BusquedaAmplitud(int origen, int destino) {
   bloque_info.generados.resize(this->num_vertices, -1);
   bloque_info.camino.resize(this->num_vertices, -1);
   cola.push(origen);
+  visitados.at(origen) = true;
   bloque_info.generados.at(origen) = origen;
   while(!cola.empty()) {
     auto const& nodo_visitado = cola.front();
     cola.pop();
-    bloque_info.inspeccionados.at(nodo_visitado) = nodo_visitado;
-    camino_pila.push(nodo_visitado);
-    visitados.at(nodo_visitado) = true;
+    bloque_info.inspeccionados.at(iter_inspec) = nodo_visitado;
+    iter_inspec++;
     if(nodo_visitado == destino) {
-      bloque_info.camino.at(iterador) = camino_pila.top();
-      std::vector<bool> recorrido_atras(this->num_vertices, false);
-      recorrido_atras.at(camino_pila.top()) = true;
-      camino_pila.pop();
-      while(!camino_pila.empty()){
-        if(Vertices.at(camino_pila.top()).at(bloque_info.camino.at(iterador)) > 0 && recorrido_atras.at(camino_pila.top()) == false) {
-          recorrido_atras.at(camino_pila.top()) = true;
-          iterador++;
-          bloque_info.camino.at(iterador) = camino_pila.top();
-        }
+      int iterador = 0;
+      while(!camino_pila.empty() && camino_pila.top().second != destino) camino_pila.pop();
+      while(!camino_pila.empty()) {
+        bloque_info.camino.at(iterador) = camino_pila.top().second;
+        iterador++;
+        int padre = camino_pila.top().first;
         camino_pila.pop();
+        while(!camino_pila.empty() && camino_pila.top().second != padre) camino_pila.pop();
       }
+      bloque_info.camino.at(iterador) = origen;
       std::reverse(bloque_info.camino.begin(), bloque_info.camino.end());
-      bloque_info.coste = this->CosteCamino(bloque_info.camino);
+      bloque_info.coste = CosteCamino(bloque_info.camino);
       return bloque_info;
     }
     auto adyacentes = Vertices.at(nodo_visitado);
     for(unsigned int i = 0; i < adyacentes.size(); i++) {
       if(adyacentes[i] != -1 && visitados.at(i) == false) {
+        camino_pila.push(std::make_pair(nodo_visitado, i));
         cola.push(i);
         bloque_info.generados.at(i) = i;
+        visitados.at(i) = true;
       }
     }
   }
   return bloque_info;
 }
+
+
   bool Grafo::AllVisited(std::vector<double> adyacentes, std::vector<bool> nodos_visitados) {
     for(unsigned int i = 0; i < adyacentes.size(); i++) {
       if(adyacentes[i] >= 0 && nodos_visitados[i] == false) {

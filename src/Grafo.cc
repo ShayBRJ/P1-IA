@@ -175,7 +175,7 @@ std::ostream& operator<<(std::ostream& out, const SIB& bloque_info) {
   out << "El camino es: ";
   for(auto x : bloque_info.camino) {
   if(x == -1) continue;
-    out << x + 1 << " ";
+    out << "->" << x + 1 << " ";
   }
   out << "\n";
   out << "Los nodos generados son: ";
